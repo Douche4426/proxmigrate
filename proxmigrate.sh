@@ -8,8 +8,8 @@ main_menu() {
   while true; do
     clear
     echo "=========== ProxMigrate ==========="
-    echo "1) Listeaza toate VM-urile disponibile"
-    echo "2) Creeaza backup VM (vzdump)"
+    echo "1) Listeaza toate VM/LXC disponibile"
+    echo "2) Creeaza backup VM/LXC (vzdump)"
     echo "3) Transfera backup catre alt nod"
     echo "4) Restaureaza VM din backup"
     echo "5) Sterge backupuri vechi"
@@ -47,20 +47,35 @@ list_vm_lxc() {
 
 
 create_backup() {
-  read -p "ID-ul VM-ului de backup: " VM_ID
-  echo "Oprire VM ${VM_ID}..."
-  qm shutdown ${VM_ID}
-  sleep 10
-  while qm status ${VM_ID} | grep -q "status: running"; do
-    echo "Asteptam oprirea VM..."
-    sleep 5
-  done
+  read -p "ID-ul VM/LXC pentru backup: " VM_ID
 
-  echo "Creare backup..."
+  # Detecteaza tipul: vm (KVM) sau lxc
+  if qm status ${VM_ID} &>/dev/null; then
+    echo "🔌 Oprire VM ${VM_ID}..."
+    qm shutdown ${VM_ID}
+    while qm status ${VM_ID} | grep -q "status: running"; do
+      echo "⏳ Asteptam oprirea VM..."
+      sleep 5
+    done
+  elif pct status ${VM_ID} &>/dev/null; then
+    echo "🔌 Oprire container LXC ${VM_ID}..."
+    pct shutdown ${VM_ID}
+    while pct status ${VM_ID} | grep -q "status: running"; do
+      echo "⏳ Asteptam oprirea LXC..."
+      sleep 5
+    done
+  else
+    echo "❌ Nu s-a gasit nicio masina sau container cu ID-ul ${VM_ID}"
+    read -p "Apasa Enter pentru a reveni la meniu..."
+    return
+  fi
+
+  echo "💾 Creare backup..."
   vzdump ${VM_ID} --compress zstd --mode stop --storage local
-  echo "Backup creat in ${BACKUP_DIR}"
+  echo "✅ Backup creat pentru ${VM_ID}"
   read -p "Apasa Enter pentru a reveni la meniu..."
 }
+
 
 transfer_backup() {
   read -p "ID-ul VM-ului de transferat: " VM_ID
