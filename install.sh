@@ -1,15 +1,23 @@
 #!/bin/bash
 
-INSTALL_DIR="/usr/local/bin"
-SCRIPT_NAME="proxmigrate"
+set -e
 
-echo "🔧 Instalare ProxMigrate în ${INSTALL_DIR}..."
+echo "📥 Descarc ProxMigrate..."
+mkdir -p /tmp/proxmigrate && cd /tmp/proxmigrate
+curl -sL https://github.com/USERNAME/Douche4426/archive/refs/heads/main.zip -o proxmigrate.zip
+unzip -q proxmigrate.zip
+cd proxmigrate-main
 
-# Copiere script
-cp proxmigrate.sh "${INSTALL_DIR}/${SCRIPT_NAME}"
+echo "⚙️ Instalez fisiere binare..."
+cp proxmigrate /usr/local/bin/proxmigrate
+cp cron-backup-running-discord.sh /usr/local/bin/
+chmod +x /usr/local/bin/proxmigrate /usr/local/bin/cron-backup-running-discord.sh
 
-# Permisiuni
-chmod +x "${INSTALL_DIR}/${SCRIPT_NAME}"
+echo "⚙️ Instalez serviciul systemd..."
+cp proxmigrate-backup.service /etc/systemd/system/
+cp proxmigrate-backup.timer /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable --now proxmigrate-backup.timer
 
-echo "✅ Instalare completă!"
-echo "ℹ️ Acum poți rula comanda: proxmigrate"
+echo "✅ Instalare completa!"
+echo "Ruleaza comanda: proxmigrate"
