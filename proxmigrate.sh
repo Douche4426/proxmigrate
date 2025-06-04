@@ -88,14 +88,54 @@ transfer_backup() {
 }
 
 restore_vm() {
-  read -p "ID-ul VM-ului pentru restaurare: " VM_ID
-  BACKUP_FILE=$(ls -t ${BACKUP_DIR}/vzdump-qemu-${VM_ID}*.zst | head -n 1)
-  echo "Restaurare din ${BACKUP_FILE} pe ID: ${VM_ID}"
-  qmrestore "${BACKUP_FILE}" ${VM_ID} --storage local
-  qm start ${VM_ID}
-  echo "VM restaurat si pornit."
+  read -p "ID-ul VM/LXC pentru restaurare: " VM_ID
+
+  # Cauta fișierul de backup (LXC sau VM)
+  BACKUP_FILE=$(ls -t ${BACKUP_DIR}/vzdump-qemu-${VM_ID}*.zst 2>/dev/null | head -n 1)
+  TYPE="qemu"
+  if [[ -z "$BACKUP_FILE" ]]; then
+    BACKUP_FILE=$(ls -t ${BACKUP_DIR}/vzdump-lxc-${VM_ID}*.zst 2>/dev/null | head -n 1)
+    TYPE="lxc"
+  fi
+
+  if [[ -z "$BACKUP_FILE" ]]; then
+    echo "❌ Nu s-a gasit niciun backup pentru ID-ul ${VM_ID}."
+    read -p "Apasa Enter pentru a reveni la meniu..."
+    return
+  fi
+
+  # Daca VM sau LXC cu acest ID deja exista, cere confirmare pentru stergere
+  if qm status ${VM_ID} &>/dev/null || pct status ${VM_ID} &>/dev/null; then
+    echo "⚠️  Exista deja o instanta cu ID-ul ${VM_ID}."
+    read -p "Doresti sa o stergi inainte de restaurare? [y/N]: " CONFIRM
+    if [[ $CONFIRM =~ ^[Yy]$ ]]; then
+      echo "🗑️ Stergere ${TYPE} ${VM_ID}..."
+      if [[ $TYPE == "qemu" ]]; then
+        qm destroy ${VM_ID} --purge
+      else
+        pct destroy ${VM_ID}
+      fi
+    else
+      echo "❌ Restaurarea a fost anulata."
+      read -p "Apasa Enter pentru a reveni la meniu..."
+      return
+    fi
+  fi
+
+  echo "📦 Restaurare din ${BACKUP_FILE}..."
+  if [[ $TYPE == "qemu" ]]; then
+    qmrestore "$BACKUP_FILE" ${VM_ID} --storage local
+    qm start ${VM_ID}
+    echo "✅ VM restaurata si pornita."
+  else
+    pct restore ${VM_ID} "$BACKUP_FILE" --storage local
+    pct start ${VM_ID}
+    echo "✅ Container LXC restaurat si pornit."
+  fi
+
   read -p "Apasa Enter pentru a reveni la meniu..."
 }
+
 
 delete_old_backups() {
   echo "📦 Backupuri existente:"
