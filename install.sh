@@ -5,7 +5,7 @@ set -e
 echo "📥 Descarc ProxMigrate..."
 mkdir -p /tmp/proxmigrate && cd /tmp/proxmigrate
 curl -sL https://github.com/Douche4426/proxmigrate/archive/refs/heads/main.zip -o proxmigrate.zip
-unzip -q proxmigrate.zip
+unzip -o proxmigrate.zip >/dev/null
 cd proxmigrate-main
 
 echo "⚙️ Instalez fisiere binare..."
