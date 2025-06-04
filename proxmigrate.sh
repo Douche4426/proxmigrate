@@ -147,16 +147,18 @@ restore_vm() {
 
 
 delete_old_backups() {
-  echo "📦 Backupuri existente:"
-  ls -lh ${BACKUP_DIR}/vzdump-{qemu,lxc}-*.zst 2>/dev/null || echo "❌ Nu exista backupuri in ${BACKUP_DIR}"
+  echo "🗃️ Backupuri existente:"
+
+  if ls ${BACKUP_DIR}/vzdump-{qemu,lxc}-*.zst &>/dev/null; then
+    ls -lh ${BACKUP_DIR}/vzdump-{qemu,lxc}-*.zst
+  else
+    echo "❌ Nu exista backupuri in ${BACKUP_DIR}"
+  fi
 
   read -p "Vrei sa stergi toate backupurile vechi ale unei VM/LXC? (ID): " VM_ID
 
-  # Sterge backupuri pentru VM
-  find ${BACKUP_DIR} -name "vzdump-qemu-${VM_ID}-*.zst" -exec rm -v {} \;
-
-  # Sterge backupuri pentru LXC
-  find ${BACKUP_DIR} -name "vzdump-lxc-${VM_ID}-*.zst" -exec rm -v {} \;
+  # Sterge atat backupurile pentru VM, cat si cele pentru LXC cu ID-ul dat
+  find ${BACKUP_DIR} -type f \( -name "vzdump-qemu-${VM_ID}-*.zst" -o -name "vzdump-lxc-${VM_ID}-*.zst" \) -exec rm -v {} \;
 
   echo "🗑️ Backupurile pentru ID ${VM_ID} au fost sterse (daca existau)."
   read -p "Apasa Enter pentru a reveni la meniu..."
