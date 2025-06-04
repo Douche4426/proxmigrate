@@ -62,7 +62,7 @@ WEBHOOK_URL="https://discord.com/api/webhooks/xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 Rulează:
 
 ```bash
-bash uninstall-proxmigrate.sh
+bash <(curl -s https://raw.githubusercontent.com/Douche4426/proxmigrate/main/uninstall-proxmigrate.sh)
 ```
 
 ---
