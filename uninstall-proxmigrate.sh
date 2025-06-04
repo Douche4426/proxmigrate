@@ -3,7 +3,7 @@
 echo "🧹 Dezinstalare ProxMigrate..."
 
 # Opreste si dezactiveaza timerul systemd
-systemctl disable --now proxmigrate-backup.timer 2>/dev/null
+systemctl disable --now proxmigrate-backup.timer 2>/dev/null || true
 rm -f /etc/systemd/system/proxmigrate-backup.service
 rm -f /etc/systemd/system/proxmigrate-backup.timer
 
@@ -15,14 +15,21 @@ rm -f /usr/local/bin/proxmigrate-backup-with-mail
 rm -f /usr/local/bin/cron-backup-running-discord.sh
 rm -f /usr/local/bin/proxversion
 
-# Sterge directorul auxiliar
+# Sterge folder changelog
 rm -rf /usr/local/share/proxmigrate
 
-# Optional: Sterge logul
-read -p "Doresti sa stergi si logul? (/var/log/proxmigrate.log) [y/N]: " confirm
-if [[ $confirm =~ ^[Yy]$ ]]; then
+# Optional: Sterge logul principal
+read -p "Doresti sa stergi si logul principal (/var/log/proxmigrate.log)? [y/N]: " confirm1
+if [[ $confirm1 =~ ^[Yy]$ ]]; then
   rm -f /var/log/proxmigrate.log
-  echo "🗑️ Log sters."
+  echo "🗑️ Logul principal a fost sters."
+fi
+
+# Optional: Sterge logul de debug
+read -p "Doresti sa stergi si logul de debug (/tmp/debug-proxmigrate.log)? [y/N]: " confirm2
+if [[ $confirm2 =~ ^[Yy]$ ]]; then
+  rm -f /tmp/debug-proxmigrate.log
+  echo "🧼 Logul de debug a fost sters."
 fi
 
 # Reload systemd
