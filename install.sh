@@ -15,6 +15,13 @@ if [ -f "proxmigrate.sh" ]; then
   mv proxmigrate.sh proxmigrate
 fi
 
+# Verific daca scriptul exista acum
+if [ ! -f "proxmigrate" ]; then
+  echo "❌ Eroare: fisierul 'proxmigrate' nu exista in arhiva!"
+  echo "Asigura-te ca fisierul corect este prezent in root-ul arhivei GitHub."
+  exit 1
+fi
+
 cp proxmigrate /usr/local/bin/proxmigrate
 chmod +x /usr/local/bin/proxmigrate
 
