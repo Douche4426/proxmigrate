@@ -78,14 +78,23 @@ create_backup() {
 
 
 transfer_backup() {
-  read -p "ID-ul VM-ului de transferat: " VM_ID
+  read -p "ID-ul VM/LXC de transferat: " VM_ID
   read -p "IP-ul nodului destinatie (Tailscale): " TS_IP
-  BACKUP_FILE=$(ls -t ${BACKUP_DIR}/vzdump-qemu-${VM_ID}*.zst | head -n 1)
+
+  BACKUP_FILE=$(ls -t ${BACKUP_DIR}/vzdump-{qemu,lxc}-${VM_ID}-*.zst 2>/dev/null | head -n 1)
+
+  if [[ -z "$BACKUP_FILE" ]]; then
+    echo "❌ Nu s-a gasit niciun backup pentru ID-ul $VM_ID!"
+    read -p "Apasa Enter pentru a reveni la meniu..."
+    return
+  fi
+
   echo "Transfer fisier: ${BACKUP_FILE} catre ${TS_IP}..."
   scp "${BACKUP_FILE}" root@${TS_IP}:${BACKUP_DIR}/
-  echo "Transfer finalizat."
+  echo "✅ Transfer finalizat."
   read -p "Apasa Enter pentru a reveni la meniu..."
 }
+
 
 restore_vm() {
   read -p "ID-ul VM/LXC pentru restaurare: " VM_ID
