@@ -18,7 +18,7 @@ main_menu() {
     read -p "Selecteaza optiunea: " opt
 
     case $opt in
-      1) list_vms;;
+      1) list_vm_lxc;;
       2) create_backup;;
       3) transfer_backup;;
       4) restore_vm;;
@@ -29,11 +29,22 @@ main_menu() {
   done
 }
 
-list_vms() {
-  echo "📋 Lista VM-uri disponibile pe acest nod:"
-  qm list
+list_vm_lxc() {
+  clear
+  echo -e "============ ProxMigrate ============"
+  
+  echo -e "\033[1;36m📦 VM-uri KVM (qm list)\033[0m"
+  qm list | (read -r; echo "$REPLY"; sort -n)
+
+  echo ""
+  echo -e "\033[1;36m📦 Containere LXC (pct list)\033[0m"
+  pct list | (read -r; echo "$REPLY"; sort -n)
+
+  echo ""
   read -p "Apasa Enter pentru a reveni la meniu..."
 }
+
+
 
 create_backup() {
   read -p "ID-ul VM-ului de backup: " VM_ID
