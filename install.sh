@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -e
 
 echo "📥 Descarc ProxMigrate..."
@@ -11,29 +10,62 @@ cd proxmigrate-main
 
 echo "⚙️ Instalez fisiere binare..."
 
-# Caut scriptul principal si il redenumesc daca e nevoie
+# Daca fisierul e .sh, il redenumim
 if [ -f "proxmigrate.sh" ]; then
   mv proxmigrate.sh proxmigrate
 fi
 
-# Verific daca scriptul exista acum
+# Verificam daca exista fisierul esential
 if [ ! -f "proxmigrate" ]; then
   echo "❌ Eroare: fisierul 'proxmigrate' nu exista in arhiva!"
-  echo "Asigura-te ca fisierul corect este prezent in root-ul arhivei GitHub."
+  echo "Asigura-te ca este corect prezent in root-ul arhivei GitHub."
   exit 1
 fi
 
+# Copiere script principal
 cp proxmigrate /usr/local/bin/proxmigrate
 chmod +x /usr/local/bin/proxmigrate
 
-cp cron-backup-running-discord.sh /usr/local/bin/
-chmod +x /usr/local/bin/proxmigrate /usr/local/bin/cron-backup-running-discord.sh
+# Instaleaza CHANGELOG + proxversion
+mkdir -p /usr/local/share/proxmigrate
+cp CHANGELOG.md /usr/local/share/proxmigrate/
+cp proxversion /usr/local/bin/
+chmod +x /usr/local/bin/proxversion
 
-echo "⚙️ Instalez serviciul systemd..."
-cp proxmigrate-backup.service /etc/systemd/system/
-cp proxmigrate-backup.timer /etc/systemd/system/
+# Script backup
+cp cron-backup-running-discord.sh /usr/local/bin/
+chmod +x /usr/local/bin/cron-backup-running-discord.sh
+
+# Serviciu systemd
+cat <<EOF > /etc/systemd/system/proxmigrate-backup.service
+[Unit]
+Description=Backup automat ProxMigrate
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/cron-backup-running-discord.sh
+EOF
+
+# Timer systemd
+cat <<EOF > /etc/systemd/system/proxmigrate-backup.timer
+[Unit]
+Description=Ruleaza backup ProxMigrate zilnic
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+EOF
+
+# Activare timer
 systemctl daemon-reload
 systemctl enable --now proxmigrate-backup.timer
 
 echo "✅ Instalare completa!"
-echo "Ruleaza comanda: proxmigrate"
+echo "📦 Ruleaza comanda:  proxmigrate"
+echo "🔎 Vezi versiunea:   proxversion"
+echo "📄 Istoric versiuni: proxversion --changelog"
