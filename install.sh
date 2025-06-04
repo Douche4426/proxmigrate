@@ -9,7 +9,15 @@ unzip -q proxmigrate.zip
 cd proxmigrate-main
 
 echo "⚙️ Instalez fisiere binare..."
-cp proxmigrate.sh /usr/local/bin/proxmigrate
+
+# Caut scriptul principal si il redenumesc daca e nevoie
+if [ -f "proxmigrate.sh" ]; then
+  mv proxmigrate.sh proxmigrate
+fi
+
+cp proxmigrate /usr/local/bin/proxmigrate
+chmod +x /usr/local/bin/proxmigrate
+
 cp cron-backup-running-discord.sh /usr/local/bin/
 chmod +x /usr/local/bin/proxmigrate /usr/local/bin/cron-backup-running-discord.sh
 
