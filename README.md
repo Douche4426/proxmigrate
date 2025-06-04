@@ -2,31 +2,42 @@
 
 Un script interactiv pentru migrarea VM-urilor între noduri Proxmox folosind backup (`vzdump`) și restaurare (`qmrestore`). Ideal pentru utilizatori care folosesc Tailscale pentru conectarea nodurilor la distanță.
 
-## 📦 Funcționalități
-- Listarea VM-urilor
-- Backup complet cu `vzdump`
-- Transfer backup prin `scp`
-- Restaurare VM pe alt nod
-- Ștergerea backupurilor vechi
+---
 
-## ⚙️ Instalare rapidă
+## 🚀 Instalare rapidă
 
-1. Clonează sau copiază fișierele în folderul `proxmigrate`:
-   ```bash
-   git clone https://github.com/tu/proxmigrate.git
-   cd proxmigrate
-   ```
+Rulează comanda de mai jos pe nodul Proxmox:
 
-2. Rulează scriptul de instalare:
-   ```bash
-   chmod +x install.sh
-   sudo ./install.sh
-   ```
+```bash
+bash <(curl -s https://raw.githubusercontent.com/alexs/proxmigrate/main/install.sh)
+````
 
-3. Rulează comanda:
-   ```bash
-   proxmigrate
-   ```
+---
+
+## 🛠️ Ce face ProxMigrate?
+
+* ✅ Backup manual sau automat (VM-uri alese sau doar cele pornite)
+* 🔁 Restaurare rapidă a VM-urilor
+* 📡 Transfer între noduri prin Tailscale
+* 🔔 Notificări prin **Discord webhook**
+* 🎛️ Meniu interactiv în terminal
+* ⏱️ Serviciu `systemd` zilnic pentru backup automat
+* 🧹 Script de dezinstalare completă
+
+---
+
+## 📦 Structura
+
+| Script/Fisier                    | Rol                                                                |
+| -------------------------------- | ------------------------------------------------------------------ |
+| `proxmigrate`                    | Meniul interactiv principal                                        |
+| `cron-backup-running-discord.sh` | Backup automat doar pentru VM-urile pornite, cu notificare Discord |
+| `proxmigrate-backup.service`     | Serviciu systemd pentru backup                                     |
+| `proxmigrate-backup.timer`       | Timer zilnic la ora 03:00                                          |
+| `install.sh`                     | Script de instalare                                                |
+| `uninstall-proxmigrate.sh`       | Script de dezinstalare                                             |
+
+---
 
 ## 📋 Cerințe
 - Proxmox VE 7.x sau 8.x
@@ -34,13 +45,33 @@ Un script interactiv pentru migrarea VM-urilor între noduri Proxmox folosind ba
 - Rețea privată funcțională (Tailscale recomandat)
 - Spațiu suficient pentru backupuri în `/var/lib/vz/dump`
 
-## 🧠 Sugestii
-- Folosește backup în `--mode stop` pentru migrare completă (sigură)
-- Pentru replicare periodică, folosește `cron` + `vzdump`
+---
 
-## 🔐 Securitate
-- Transferul între noduri se face cu `scp`, folosește chei SSH securizate
-- Scriptul NU folosește HA sau live migration (nu recomandat prin WAN)
+## 📤 Notificări Discord
+
+Configurează `WEBHOOK_URL` în `cron-backup-running-discord.sh` cu linkul tău personalizat de webhook Discord:
+
+```bash
+WEBHOOK_URL="https://discord.com/api/webhooks/xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+```
+
+---
+
+## 🧹 Dezinstalare
+
+Rulează:
+
+```bash
+bash uninstall-proxmigrate.sh
+```
+
+---
+
+## 📋 Capturi de ecran
+
+![Meniul ProxMigrate](https://raw.githubusercontent.com/alexs/proxmigrate/main/screenshots/menu.png)
+
+---
 
 ## 📄 Licență
 MIT
