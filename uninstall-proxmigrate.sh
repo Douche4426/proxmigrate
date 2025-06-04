@@ -13,12 +13,16 @@ rm -f /usr/local/bin/proxmigrate-backup-100
 rm -f /usr/local/bin/proxmigrate-backup-multi
 rm -f /usr/local/bin/proxmigrate-backup-with-mail
 rm -f /usr/local/bin/cron-backup-running-discord.sh
+rm -f /usr/local/bin/proxversion
+
+# Sterge directorul auxiliar
+rm -rf /usr/local/share/proxmigrate
 
 # Optional: Sterge logul
 read -p "Doresti sa stergi si logul? (/var/log/proxmigrate.log) [y/N]: " confirm
 if [[ $confirm =~ ^[Yy]$ ]]; then
   rm -f /var/log/proxmigrate.log
-  echo "✅ Log sters."
+  echo "🗑️ Log sters."
 fi
 
 # Reload systemd
