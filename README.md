@@ -9,7 +9,7 @@ Un script interactiv pentru migrarea VM-urilor între noduri Proxmox folosind ba
 Rulează comanda de mai jos pe nodul Proxmox:
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/alexs/proxmigrate/main/install.sh)
+bash <(curl -s https://raw.githubusercontent.com/Douche4426/proxmigrate/main/install.sh)
 ````
 
 ---
