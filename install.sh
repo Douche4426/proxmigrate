@@ -3,6 +3,7 @@
 set -e
 
 echo "📥 Descarc ProxMigrate..."
+rm -rf /tmp/proxmigrate
 mkdir -p /tmp/proxmigrate && cd /tmp/proxmigrate
 curl -sL https://github.com/Douche4426/proxmigrate/archive/refs/heads/main.zip -o proxmigrate.zip
 unzip -o proxmigrate.zip >/dev/null
