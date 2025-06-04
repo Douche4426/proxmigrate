@@ -32,11 +32,16 @@ cp CHANGELOG.md /usr/local/share/proxmigrate/
 cp proxversion /usr/local/bin/
 chmod +x /usr/local/bin/proxversion
 
-# Script backup
+# Script backup cu notificare Discord
 cp cron-backup-running-discord.sh /usr/local/bin/
 chmod +x /usr/local/bin/cron-backup-running-discord.sh
 
-# Serviciu systemd
+# Injectam DEBUG=1 daca nu exista
+if ! grep -q "DEBUG=1" /usr/local/bin/cron-backup-running-discord.sh; then
+  sed -i '1a DEBUG=1' /usr/local/bin/cron-backup-running-discord.sh
+fi
+
+# Creare serviciu systemd
 cat <<EOF > /etc/systemd/system/proxmigrate-backup.service
 [Unit]
 Description=Backup automat ProxMigrate
@@ -48,7 +53,7 @@ Type=oneshot
 ExecStart=/usr/local/bin/cron-backup-running-discord.sh
 EOF
 
-# Timer systemd
+# Creare timer systemd
 cat <<EOF > /etc/systemd/system/proxmigrate-backup.timer
 [Unit]
 Description=Ruleaza backup ProxMigrate zilnic
@@ -63,9 +68,10 @@ EOF
 
 # Activare timer
 systemctl daemon-reload
-systemctl enable --now proxmigrate-backup.timer
+systemctl enable --now proxmigrate-backup.timer || true
 
 echo "✅ Instalare completa!"
 echo "📦 Ruleaza comanda:  proxmigrate"
 echo "🔎 Vezi versiunea:   proxversion"
 echo "📄 Istoric versiuni: proxversion --changelog"
+echo "🐞 Debug log (daca e activ): /tmp/debug-proxmigrate.log"
