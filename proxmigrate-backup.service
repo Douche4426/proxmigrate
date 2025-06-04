@@ -1,0 +1,8 @@
+[Unit]
+Description=ProxMigrate - Backup automat VM-uri pornite
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/cron-backup-running-discord.sh
