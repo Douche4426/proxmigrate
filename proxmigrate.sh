@@ -46,7 +46,8 @@ main_menu() {
     echo "4) Restaureaza VM din backup"
     echo "5) Sterge backupuri vechi"
     echo "6) Verifica conexiunea Tailscale"
-    echo "7) Iesi"
+    echo "7) Seteaza Tailscale Auth-Key"
+    echo "8) Iesi"
     echo "===================================="
     read -p "Selecteaza optiunea: " opt
 
@@ -57,7 +58,8 @@ main_menu() {
       4) restore_vm;;
       5) delete_old_backups;;
       6) check_tailscale;;
-      7) exit;;
+      7) set_tailscale_auth_key;;
+      8) exit;;
       *) echo "Optiune invalida."; read -p "Apasa Enter pentru a continua...";;
     esac
   done
@@ -200,5 +202,16 @@ delete_old_backups() {
   read -p "Apasa Enter pentru a reveni la meniu..."
 }
 
+set_tailscale_auth_key() {
+  read -p "Introdu Tailscale Auth-Key (tskey-...): " AUTH
+  if [[ $AUTH == tskey-* ]]; then
+    mkdir -p /etc/proxmigrate
+    echo "$AUTH" > /etc/proxmigrate/tailscale-auth-key
+    echo "✅ Auth-Key salvat cu succes in /etc/proxmigrate/tailscale-auth-key"
+  else
+    echo "❌ Cheia nu pare valida. Trebuie sa inceapa cu 'tskey-'"
+  fi
+  read -p "Apasa Enter pentru a reveni la meniu..."
+}
 
 main_menu
