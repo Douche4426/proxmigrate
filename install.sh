@@ -41,6 +41,18 @@ if ! grep -q "DEBUG=1" /usr/local/bin/cron-backup-running-discord.sh; then
   sed -i '1a DEBUG=1' /usr/local/bin/cron-backup-running-discord.sh
 fi
 
+# Instaleaza tailmox.sh in /usr/local/bin
+echo "⚙️ Instalez tailmox.sh..."
+curl -sL https://raw.githubusercontent.com/willjasen/tailmox/main/tailmox.sh -o /usr/local/bin/tailmox.sh
+chmod +x /usr/local/bin/tailmox.sh
+
+# Creeaza director pentru configurare auth-key (optional)
+mkdir -p /etc/proxmigrate
+
+# (Optional) Adauga un auth-key static daca vrei:
+# echo "tskey-abc123..." > /etc/proxmigrate/tailscale-auth-key
+
+
 # Creare serviciu systemd
 cat <<EOF > /etc/systemd/system/proxmigrate-backup.service
 [Unit]

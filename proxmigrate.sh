@@ -1,5 +1,32 @@
 #!/bin/bash
 
+check_tailscale() {
+  if ! tailscale status &>/dev/null; then
+    echo "🔌 Hostul nu este conectat la Tailscale. Incerc sa folosesc tailmox.sh..."
+    if ! command -v tailmox.sh &>/dev/null; then
+      echo "❌ tailmox.sh nu este instalat. Te rugam sa rulezi scriptul de instalare din nou."
+      return 1
+    fi
+
+    # Incearca autentificarea cu auth-key daca este disponibil
+    if [[ -f /etc/proxmigrate/tailscale-auth-key ]]; then
+      AUTH_KEY=$(cat /etc/proxmigrate/tailscale-auth-key)
+      tailmox.sh --auth-key "$AUTH_KEY"
+    else
+      tailmox.sh
+    fi
+
+    sleep 5
+    if tailscale status &>/dev/null; then
+      echo "✅ Conectat cu succes la Tailscale!"
+    else
+      echo "❌ Conexiunea Tailscale a esuat. Verifica autentificarea."
+      return 1
+    fi
+  fi
+}
+
+
 # ProxMigrate - Meniu interactiv pentru migrare VM prin backup vzdump + qmrestore
 
 BACKUP_DIR="/var/lib/vz/dump"
