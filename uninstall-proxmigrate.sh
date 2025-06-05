@@ -14,9 +14,11 @@ rm -f /usr/local/bin/proxmigrate-backup-multi
 rm -f /usr/local/bin/proxmigrate-backup-with-mail
 rm -f /usr/local/bin/cron-backup-running-discord.sh
 rm -f /usr/local/bin/proxversion
+rm -f /usr/local/bin/tailmox.sh  # 🆕 adaugat
 
-# Sterge folder changelog
+# Sterge foldere si fisiere auxiliare
 rm -rf /usr/local/share/proxmigrate
+rm -rf /etc/proxmigrate  # 🆕 adaugat (auth-key-ul Tailscale)
 
 # Optional: Sterge logul principal
 read -p "Doresti sa stergi si logul principal (/var/log/proxmigrate.log)? [y/N]: " confirm1
