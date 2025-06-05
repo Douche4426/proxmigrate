@@ -1,30 +1,35 @@
 #!/bin/bash
 
 check_tailscale() {
-  if ! tailscale status &>/dev/null; then
-    echo "🔌 Hostul nu este conectat la Tailscale. Incerc sa folosesc tailmox.sh..."
-    if ! command -v tailmox.sh &>/dev/null; then
-      echo "❌ tailmox.sh nu este instalat. Te rugam sa rulezi scriptul de instalare din nou."
-      return 1
-    fi
+  echo "🔌 Verific conexiunea Tailscale..."
 
-    # Incearca autentificarea cu auth-key daca este disponibil
-    if [[ -f /etc/proxmigrate/tailscale-auth-key ]]; then
-      AUTH_KEY=$(cat /etc/proxmigrate/tailscale-auth-key)
-      tailmox.sh --auth-key "$AUTH_KEY"
+  if ! tailscale status &>/dev/null; then
+    echo "⚠️  Nu ești conectat la Tailscale."
+
+    if [ -x /usr/local/bin/tailmox.sh ]; then
+      if [[ -f /etc/proxmigrate/tailscale-auth-key ]]; then
+        AUTH_KEY=$(cat /etc/proxmigrate/tailscale-auth-key)
+        tailmox.sh --auth-key "$AUTH_KEY"
+      else
+        tailmox.sh
+      fi
     else
-      tailmox.sh
+      echo "❌ tailmox.sh nu este instalat în /usr/local/bin/"
+      return 1
     fi
 
     sleep 5
     if tailscale status &>/dev/null; then
       echo "✅ Conectat cu succes la Tailscale!"
     else
-      echo "❌ Conexiunea Tailscale a esuat. Verifica autentificarea."
+      echo "❌ Conexiunea Tailscale a eșuat."
       return 1
     fi
+  else
+    echo "✅ Conexiune Tailscale activă."
   fi
 }
+
 
 
 # ProxMigrate - Meniu interactiv pentru migrare VM prin backup vzdump + qmrestore
@@ -105,6 +110,8 @@ create_backup() {
 
 
 transfer_backup() {
+  check_tailscale || return
+
   read -p "ID-ul VM/LXC de transferat: " VM_ID
   read -p "IP-ul nodului destinatie (Tailscale): " TS_IP
 
@@ -116,7 +123,7 @@ transfer_backup() {
     return
   fi
 
-  echo "Transfer fisier: ${BACKUP_FILE} catre ${TS_IP}..."
+  echo "🚀 Transfer fisier: ${BACKUP_FILE} catre ${TS_IP}..."
   scp "${BACKUP_FILE}" root@${TS_IP}:${BACKUP_DIR}/
   echo "✅ Transfer finalizat."
   read -p "Apasa Enter pentru a reveni la meniu..."
