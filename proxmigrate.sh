@@ -45,7 +45,8 @@ main_menu() {
     echo "3) Transfera backup catre alt nod"
     echo "4) Restaureaza VM din backup"
     echo "5) Sterge backupuri vechi"
-    echo "6) Iesi"
+    echo "6) Verifica conexiunea Tailscale"
+    echo "7) Iesi"
     echo "===================================="
     read -p "Selecteaza optiunea: " opt
 
@@ -55,7 +56,8 @@ main_menu() {
       3) transfer_backup;;
       4) restore_vm;;
       5) delete_old_backups;;
-      6) exit;;
+      6) check_tailscale;;
+      7) exit;;
       *) echo "Optiune invalida."; read -p "Apasa Enter pentru a continua...";;
     esac
   done
