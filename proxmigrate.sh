@@ -47,7 +47,8 @@ main_menu() {
     echo "5) Sterge backupuri vechi"
     echo "6) Verifica conexiunea Tailscale"
     echo "7) Seteaza Tailscale Auth-Key"
-    echo "8) Iesi"
+    echo "8) Configureaza noduri Tailscale"
+    echo "9) Iesi"
     echo "===================================="
     read -p "Selecteaza optiunea: " opt
 
@@ -59,7 +60,8 @@ main_menu() {
       5) delete_old_backups;;
       6) check_tailscale;;
       7) set_tailscale_auth_key;;
-      8) exit;;
+      8) configure_tailscale_nodes;;
+      9) exit;;
       *) echo "Optiune invalida."; read -p "Apasa Enter pentru a continua...";;
     esac
   done
@@ -117,7 +119,7 @@ transfer_backup() {
   check_tailscale || return
 
   read -p "ID-ul VM/LXC de transferat: " VM_ID
-  read -p "IP-ul nodului destinatie (Tailscale): " TS_IP
+  TS_IP=$(select_node_ip) || return
 
   BACKUP_FILE=$(ls -t ${BACKUP_DIR}/vzdump-{qemu,lxc}-${VM_ID}-*.zst 2>/dev/null | head -n 1)
 
@@ -213,5 +215,77 @@ set_tailscale_auth_key() {
   fi
   read -p "Apasa Enter pentru a reveni la meniu..."
 }
+
+configure_tailscale_nodes() {
+  mkdir -p /etc/proxmigrate
+  NODES_FILE="/etc/proxmigrate/nodes.conf"
+
+  while true; do
+    clear
+    echo "🌐 Noduri Tailscale configurate:"
+    if [[ -s "$NODES_FILE" ]]; then
+      nl -w2 -s") " "$NODES_FILE"
+    else
+      echo "  (niciun nod salvat)"
+    fi
+
+    echo ""
+    echo "1) Adauga nod nou"
+    echo "2) Sterge un nod"
+    echo "3) Iesire la meniu"
+    read -p "Selecteaza optiunea: " opt
+
+    case $opt in
+      1)
+        read -p "Nume nod (ex: belgia): " NODE_NAME
+        read -p "IP Tailscale (ex: 100.x.x.x): " NODE_IP
+        if grep -q "^$NODE_NAME=" "$NODES_FILE"; then
+          sed -i "s|^$NODE_NAME=.*|$NODE_NAME=$NODE_IP|" "$NODES_FILE"
+          echo "✏️ Nodul '$NODE_NAME' a fost actualizat."
+        else
+          echo "$NODE_NAME=$NODE_IP" >> "$NODES_FILE"
+          echo "➕ Nodul '$NODE_NAME' a fost adaugat."
+        fi
+        sleep 1
+        ;;
+      2)
+        read -p "Nume nod de sters: " DEL_NODE
+        sed -i "/^$DEL_NODE=/d" "$NODES_FILE"
+        echo "🗑️ Nodul '$DEL_NODE' a fost sters."
+        sleep 1
+        ;;
+      3)
+        break
+        ;;
+      *)
+        echo "❌ Optiune invalida."
+        sleep 1
+        ;;
+    esac
+  done
+}
+
+select_node_ip() {
+  NODES_FILE="/etc/proxmigrate/nodes.conf"
+  if [[ ! -s "$NODES_FILE" ]]; then
+    echo "❌ Nu exista noduri Tailscale salvate. Configureaza-le mai intai!"
+    sleep 2
+    return 1
+  fi
+
+  echo "🔗 Alege nodul de destinatie:"
+  NODES=()
+  INDEX=1
+
+  while IFS='=' read -r name ip; do
+    echo "$INDEX) $name ($ip)"
+    NODES+=("$ip")
+    INDEX=$((INDEX + 1))
+  done < "$NODES_FILE"
+
+  read -p "Selecteaza numarul nodului: " SELECTED
+  echo "${NODES[$((SELECTED-1))]}"
+}
+
 
 main_menu
