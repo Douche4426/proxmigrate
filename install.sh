@@ -2,6 +2,8 @@
 set -e
 
 LOG_FILE="/var/log/proxmigrate-install.log"
+source "$(dirname "$0")/dependencies.sh"
+
 echo "📥 Descarc ProxMigrate..." | tee -a "$LOG_FILE"
 
 # Verificare si fallback pentru curl
@@ -126,6 +128,8 @@ if [[ -z "$SKIP_SYSTEMD" ]]; then
 else
   echo "⏭️ Timerul systemd nu a fost activat (lipseste systemctl)." | tee -a "$LOG_FILE"
 fi
+
+[[ -d /tmp/proxmigrate ]] && rm -rf /tmp/proxmigrate && echo "🧹 Directorul temporar /tmp/proxmigrate a fost curatat." | tee -a "$LOG_FILE"
 
 echo "✅ Instalare completa!"
 echo ""
