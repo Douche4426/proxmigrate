@@ -118,7 +118,16 @@ create_backup() {
 
 
 transfer_backup() {
-  check_tailscale || return
+  check_tailscale
+  if ! tailscale status &>/dev/null; then
+    return
+  fi
+
+  read -p "🔁 Apasa Enter pentru a continua procesul..."
+
+
+  echo "📦 Backupuri disponibile:"
+  ls -lh /var/lib/vz/dump/vzdump-{qemu,lxc}-*.zst 2>/dev/null | awk '{print "  → " $9}'
 
   read -p "ID-ul VM/LXC de transferat: " VM_ID
   TS_IP=$(select_node_ip) || return
@@ -285,8 +294,11 @@ select_node_ip() {
     INDEX=$((INDEX + 1))
   done < "$NODES_FILE"
 
+  echo ""
   read -p "Selecteaza numarul nodului: " SELECTED
-  echo "${NODES[$((SELECTED-1))]}"
+  SELECTED_IP="${NODES[$((SELECTED-1))]}"
+  echo "📡 Nod selectat: $SELECTED_IP"
+  echo "$SELECTED_IP"
 }
 
 
