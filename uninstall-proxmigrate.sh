@@ -45,4 +45,5 @@ fi
 # Reload systemd
 systemctl daemon-reload && echo "🔄 systemd reîncărcat." >> "$LOG"
 
-echo "✅ ProxMigrate a fost dezinstalat complet."
+echo "✅ ProxMigrate a fost dezinstalat complet. Log salvat in: $LOG"
+
