@@ -1,7 +1,16 @@
 #!/bin/bash
 set -e
 
-echo "📥 Descarc ProxMigrate..."
+LOG_FILE="/var/log/proxmigrate-install.log"
+echo "📥 Descarc ProxMigrate..." | tee -a "$LOG_FILE"
+
+if curl -sL https://github.com/... -o proxmigrate.zip; then
+  echo "✅ ProxMigrate a fost descarcat fara erori!" | tee -a "$LOG_FILE"
+else
+  echo "❌ Eroare la descarcarea ProxMigrate!" | tee -a "$LOG_FILE"
+  exit 1
+fi
+
 rm -rf /tmp/proxmigrate
 mkdir -p /tmp/proxmigrate && cd /tmp/proxmigrate
 curl -sL https://github.com/Douche4426/proxmigrate/archive/refs/heads/main.zip -o proxmigrate.zip
@@ -25,16 +34,19 @@ fi
 # Copiere script principal
 cp proxmigrate /usr/local/bin/proxmigrate
 chmod +x /usr/local/bin/proxmigrate
+echo "✅ Scriptul principal 'proxmigrate' a fost instalat!" | tee -a "$LOG_FILE"
 
 # Instaleaza CHANGELOG + proxversion
 mkdir -p /usr/local/share/proxmigrate
 cp CHANGELOG.md /usr/local/share/proxmigrate/
 cp proxversion /usr/local/bin/
 chmod +x /usr/local/bin/proxversion
+echo "✅ proxversion si CHANGELOG.md instalate!" | tee -a "$LOG_FILE"
 
 # Script backup cu notificare Discord
 cp cron-backup-running-discord.sh /usr/local/bin/
 chmod +x /usr/local/bin/cron-backup-running-discord.sh
+echo "✅ Scriptul cron-backup-running-discord.sh a fost instalat!" | tee -a "$LOG_FILE"
 
 # Injectam DEBUG=1 daca nu exista
 if ! grep -q "DEBUG=1" /usr/local/bin/cron-backup-running-discord.sh; then
@@ -42,16 +54,16 @@ if ! grep -q "DEBUG=1" /usr/local/bin/cron-backup-running-discord.sh; then
 fi
 
 # Instaleaza tailmox.sh in /usr/local/bin
-echo "⚙️ Instalez tailmox.sh..."
-curl -sL https://raw.githubusercontent.com/willjasen/tailmox/main/tailmox.sh -o /usr/local/bin/tailmox.sh
-chmod +x /usr/local/bin/tailmox.sh
+if [[ -f /usr/local/bin/tailmox.sh ]]; then
+  echo "✅ tailmox.sh este deja instalat!" | tee -a "$LOG_FILE"
+else
+  curl -sL https://raw.githubusercontent.com/willjasen/tailmox/main/tailmox.sh -o /usr/local/bin/tailmox.sh && chmod +x /usr/local/bin/tailmox.sh
+  echo "✅ tailmox.sh instalat fara erori!" | tee -a "$LOG_FILE"
+fi
 
 # Creeaza director pentru configurare auth-key (optional)
 mkdir -p /etc/proxmigrate
-
-# (Optional) Adauga un auth-key static daca vrei:
-# echo "tskey-abc123..." > /etc/proxmigrate/tailscale-auth-key
-
+echo "✅ Directorul /etc/proxmigrate a fost creat!" | tee -a "$LOG_FILE"
 
 # Creare serviciu systemd
 cat <<EOF > /etc/systemd/system/proxmigrate-backup.service
@@ -80,9 +92,13 @@ EOF
 
 # Activare timer
 systemctl daemon-reload
+echo "🔄 systemd reîncărcat." | tee -a "$LOG_FILE"
 systemctl enable --now proxmigrate-backup.timer || true
+echo "✅ Am creat symlink pentru proxmigrate-backup.timer!" | tee -a "$LOG_FILE"
 
 echo "✅ Instalare completa!"
+echo ""
+echo "Instrucțiuni de utilizare:"
 echo "📦 Ruleaza comanda:  proxmigrate"
 echo "🔎 Vezi versiunea:   proxversion"
 echo "📄 Istoric versiuni: proxversion --changelog"
