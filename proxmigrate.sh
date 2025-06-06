@@ -25,7 +25,8 @@ main_menu() {
       3) transfer_backup;;
       4) restore_vm;;
       5) delete_old_backups;;
-      6) check_tailscale;;
+      6) check_tailscale
+         read -p "🔁 Apasa Enter pentru a reveni la meniu...";;
       7) set_tailscale_auth_key;;
       8) configure_tailscale_nodes;;
       9) exit;;
@@ -65,8 +66,6 @@ check_tailscale() {
   else
     echo "✅ Conexiune Tailscale activă."
   fi
-
-  read -p "Apasa Enter pentru a reveni la meniu..."
 }
 
 
@@ -126,8 +125,8 @@ transfer_backup() {
   read -p "🔁 Apasa Enter pentru a continua procesul..."
 
 
-  echo "📦 Backupuri disponibile:"
-  ls -lh /var/lib/vz/dump/vzdump-{qemu,lxc}-*.zst 2>/dev/null | awk '{print "  → " $9}'
+echo "📦 Backupuri disponibile:"
+ls -1t /var/lib/vz/dump/vzdump-{qemu,lxc}-*.zst 2>/dev/null | sed 's|.*/||' | awk '{print "  → " $1}'
 
   read -p "ID-ul VM/LXC de transferat: " VM_ID
   TS_IP=$(select_node_ip) || return
@@ -148,6 +147,11 @@ transfer_backup() {
 
 
 restore_vm() {
+if ! command -v qm &>/dev/null && ! command -v pct &>/dev/null; then
+  echo "❌ Nici qm, nici pct nu sunt disponibile pe acest nod. Restore imposibil."
+  return 1
+fi
+
   read -p "ID-ul VM/LXC pentru restaurare: " VM_ID
 
   # Cauta fișierul de backup (LXC sau VM)
@@ -212,12 +216,14 @@ delete_old_backups() {
   find ${BACKUP_DIR} -type f \( -name "vzdump-qemu-${VM_ID}-*.zst" -o -name "vzdump-lxc-${VM_ID}-*.zst" \) -exec rm -v {} \;
 
   echo "🗑️ Backupurile pentru ID ${VM_ID} au fost sterse (daca existau)."
+  echo "📦 Spatiu ocupat de backupuri ramase:"
+  du -sh ${BACKUP_DIR}/vzdump-* 2>/dev/null
   read -p "Apasa Enter pentru a reveni la meniu..."
 }
 
 set_tailscale_auth_key() {
   read -p "Introdu Tailscale Auth-Key (tskey-...): " AUTH
-  if [[ $AUTH == tskey-* ]]; then
+  if [[ $AUTH == tskey-* && ${#AUTH} -ge 25 ]]; then
     mkdir -p /etc/proxmigrate
     echo "$AUTH" > /etc/proxmigrate/tailscale-auth-key
     echo "✅ Auth-Key salvat cu succes in /etc/proxmigrate/tailscale-auth-key"
