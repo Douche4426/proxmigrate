@@ -1,17 +1,52 @@
 #!/bin/bash
 
-# Afiseaza versiunea ProxMigrate din cel mai recent tag Git
-VERSION=$(git -C "$(dirname "$0")" describe --tags --abbrev=0 2>/dev/null)
+# === Definire cale + versiune ===
+SCRIPT_DIR="$(dirname "$0")"
+VERSION=$(git -C "$SCRIPT_DIR" describe --tags --abbrev=0 2>/dev/null)
 
-if [[ -n "$VERSION" ]]; then
-  echo "🧩 ProxMigrate - Versiune: $VERSION"
-else
-  echo "⚠️ Versiune necunoscuta (fara tag Git)"
-fi
+# === Functie: Afiseaza changelog pentru versiunea curenta ===
+afiseaza_changelog() {
+  CHANGELOG_PATH="$SCRIPT_DIR/../share/proxmigrate/CHANGELOG.md"
+  if [[ -f "$CHANGELOG_PATH" && -n "$VERSION" ]]; then
+    echo ""
+    echo "📝 CHANGELOG pentru $VERSION:"
+    grep -A 50 "$VERSION" "$CHANGELOG_PATH" | sed '/^## \[/q'
+  else
+    echo "⚠️ CHANGELOG.md lipseste sau versiune necunoscuta."
+  fi
+}
 
-# Arata changelog daca e apelat cu --changelog
-if [[ "$1" == "--changelog" ]]; then
-  echo ""
-  echo "📝 CHANGELOG:"
-  grep -A 20 "$VERSION" "$(dirname "$0")/../share/proxmigrate/CHANGELOG.md" | sed '/^$/q'
-fi
+# === Functie: Verificare versiune noua pe GitHub ===
+verifica_update() {
+  echo "🔎 Verific versiunea curenta ProxMigrate..."
+
+  REMOTE_VERSION=$(curl -s https://api.github.com/repos/Douche4426/proxmigrate/releases/latest | grep tag_name | cut -d '"' -f4)
+
+  if [[ -z "$REMOTE_VERSION" ]]; then
+    echo "⚠️ Nu am putut verifica versiunea de pe GitHub."
+    return
+  fi
+
+  echo "🔐 Versiune locala:  ${VERSION:-neidentificata}"
+  echo "🌍 Versiune GitHub:  $REMOTE_VERSION"
+
+  if [[ "$VERSION" == "$REMOTE_VERSION" ]]; then
+    echo "✅ Esti la zi cu ultima versiune."
+  else
+    echo "⬆️  Este disponibila o versiune noua: $REMOTE_VERSION"
+    echo "💡 Ruleaza: proxmigrate → Mentenanta → Actualizare"
+  fi
+}
+
+# === Ruteaza in functie de argument ===
+case "$1" in
+  --changelog)
+    afiseaza_changelog
+    ;;
+  --check-update|--update-check)
+    verifica_update
+    ;;
+  *)
+    echo "🧩 ProxMigrate - Versiune: ${VERSION:-necunoscuta}"
+    ;;
+esac
