@@ -15,7 +15,9 @@ main_menu() {
     echo "6) Verifica conexiunea Tailscale"
     echo "7) Seteaza Tailscale Auth-Key"
     echo "8) Configureaza noduri Tailscale"
-    echo "9) Iesi"
+    echo "9) Resetare completă ProxMigrate"
+    echo "10) Actualizeaza ProxMigrate"
+    echo "11) Iesi"
     echo "===================================="
     read -p "Selecteaza optiunea: " opt
 
@@ -29,7 +31,21 @@ main_menu() {
          read -p "🔁 Apasa Enter pentru a reveni la meniu...";;
       7) set_tailscale_auth_key;;
       8) configure_tailscale_nodes;;
-      9) exit;;
+      9)
+         if [[ -f reset.sh ]]; then
+            bash reset.sh
+         else
+            curl -sL https://raw.githubusercontent.com/Douche4426/proxmigrate/main/reset.sh | bash
+         fi
+         read -p "Apasa Enter pentru a reveni la meniu...";;
+      10)
+        if [[ -f update.sh ]]; then
+          bash update.sh
+        else
+          curl -sL https://raw.githubusercontent.com/Douche4426/proxmigrate/main/update.sh | bash
+        fi
+        read -p "Apasa Enter pentru a reveni la meniu...";;
+      11) exit;;
       *) echo "Optiune invalida."; read -p "Apasa Enter pentru a continua...";;
     esac
   done
