@@ -117,6 +117,13 @@ create_backup() {
 
 
 transfer_backup() {
+  if ! command -v scp &>/dev/null; then
+    echo "❌ Comanda 'scp' lipseste pe acest sistem."
+    echo "ℹ️ Instaleaza-o cu: apt install openssh-client"
+    read -p "Apasa Enter pentru a reveni la meniu..."
+    return 1
+  fi
+
   check_tailscale
   if ! tailscale status &>/dev/null; then
     return
@@ -125,8 +132,8 @@ transfer_backup() {
   read -p "🔁 Apasa Enter pentru a continua procesul..."
 
 
-echo "📦 Backupuri disponibile:"
-ls -1t /var/lib/vz/dump/vzdump-{qemu,lxc}-*.zst 2>/dev/null | sed 's|.*/||' | awk '{print "  → " $1}'
+  echo "📦 Backupuri disponibile:"
+  ls -1t /var/lib/vz/dump/vzdump-{qemu,lxc}-*.zst 2>/dev/null | sed 's|.*/||' | awk '{print "  → " $1}'
 
   read -p "ID-ul VM/LXC de transferat: " VM_ID
   TS_IP=$(select_node_ip) || return
@@ -147,10 +154,11 @@ ls -1t /var/lib/vz/dump/vzdump-{qemu,lxc}-*.zst 2>/dev/null | sed 's|.*/||' | aw
 
 
 restore_vm() {
-if ! command -v qm &>/dev/null && ! command -v pct &>/dev/null; then
-  echo "❌ Nici qm, nici pct nu sunt disponibile pe acest nod. Restore imposibil."
-  return 1
-fi
+  if ! command -v qm &>/dev/null && ! command -v pct &>/dev/null; then
+    echo "❌ Nici qm, nici pct nu sunt disponibile pe acest nod. Restore imposibil."
+    read -p "Apasa Enter pentru a reveni la meniu..."
+    return 1
+  fi
 
   read -p "ID-ul VM/LXC pentru restaurare: " VM_ID
 
