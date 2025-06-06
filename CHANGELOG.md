@@ -3,20 +3,31 @@
 Toate modificările semnificative aduse scriptului ProxMigrate sunt documentate mai jos.
 
 ## [v1.2.0] - 2025-06-05
-### Adaugat
-- Submeniu nou "Mentenanta" în locul optiunilor 9 (reset) si 10 (update)
-- Script nou `maintenance.sh` cu optiuni resetare si actualizare
-- Fallback profesional pentru dependințe (curl, unzip, systemctl)
-- Script `update.sh` pentru actualizare rapida
-- Script `reset.sh` cu backup optional si reinstalare completa
 
-### Imbunatatit
-- Meniul principal ProxMigrate este acum mai curat si modular
-- Mesaje de status și loguri extinse în `install.sh`
+### Adaugat
+- Submeniu nou **Mentenanta** în locul opțiunilor directe de Reset și Update
+- Script nou `maintenance.sh` cu opțiuni:
+  - Resetare completă (`reset.sh`)
+  - Actualizare simplă (`update.sh`)
+- Fallback profesional pentru dependințe:
+  - `curl`, `unzip`, `systemctl`
+- Script nou `dependencies.sh` care centralizează validările
+- Script `reset.sh` cu backup opțional și reinstalare completă
+- Script `update.sh` care actualizează doar binarele, fără reinstalare
+- Funcție nouă `verifica_update()` integrată în `proxversion`
+- Opțiune CLI: `proxversion --check-update`
+
+### Îmbunătățit
+- Separare clară între logică de operare (`proxmigrate`) și meta-informație (`proxversion`)
+- Meniul principal curățat și profesionalizat
+- Mesaje clare și log extins în `install.sh`
+- Pauzele (`read -p`) refactorizate în `case`, nu în funcții
 
 ### Fix
-- Corectat fallback unzip (pozitionare incorecta)
-- Eliminat `read` duplicat din `check_tailscale()`
+- Corectare poziționare fallback `unzip`
+- Eliminare `read` duplicat din `check_tailscale()`
+- Detectare lipsă `scp` în `transfer_backup()`
+
 
 ---
 
