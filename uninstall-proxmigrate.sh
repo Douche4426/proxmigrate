@@ -17,6 +17,11 @@ rm -f /usr/local/bin/proxmigrate-backup-with-mail && echo "✔ proxmigrate-backu
 rm -f /usr/local/bin/cron-backup-running-discord.sh && echo "✔ cron-backup-running-discord.sh sters" >> "$LOG"
 rm -f /usr/local/bin/proxversion && echo "✔ proxversion sters" >> "$LOG"
 rm -f /usr/local/bin/tailmox.sh && echo "✔ tailmox.sh sters" >> "$LOG"
+rm -f /usr/local/bin/maintenance.sh && echo "✔ maintenance.sh sters" >> "$LOG"
+rm -f /usr/local/bin/update.sh && echo "✔ update.sh sters" >> "$LOG"
+rm -f /usr/local/bin/reset.sh && echo "✔ reset.sh sters" >> "$LOG"
+rm -f /usr/local/bin/dependencies.sh && echo "✔ dependencies.sh sters" >> "$LOG"
+
 
 # Sterge foldere si fisiere auxiliare
 rm -rf /usr/local/share/proxmigrate && echo "✔ /usr/local/share/proxmigrate sters" >> "$LOG"
