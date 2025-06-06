@@ -1,37 +1,4 @@
 #!/bin/bash
-
-check_tailscale() {
-  echo "🔌 Verific conexiunea Tailscale..."
-
-  if ! tailscale status &>/dev/null; then
-    echo "⚠️  Nu ești conectat la Tailscale."
-
-    if [ -x /usr/local/bin/tailmox.sh ]; then
-      if [[ -f /etc/proxmigrate/tailscale-auth-key ]]; then
-        AUTH_KEY=$(cat /etc/proxmigrate/tailscale-auth-key)
-        tailmox.sh --auth-key "$AUTH_KEY"
-      else
-        tailmox.sh
-      fi
-    else
-      echo "❌ tailmox.sh nu este instalat în /usr/local/bin/"
-      return 1
-    fi
-
-    sleep 5
-    if tailscale status &>/dev/null; then
-      echo "✅ Conectat cu succes la Tailscale!"
-    else
-      echo "❌ Conexiunea Tailscale a eșuat."
-      return 1
-    fi
-  else
-    echo "✅ Conexiune Tailscale activă."
-  fi
-}
-
-
-
 # ProxMigrate - Meniu interactiv pentru migrare VM prin backup vzdump + qmrestore
 
 BACKUP_DIR="/var/lib/vz/dump"
@@ -67,6 +34,42 @@ main_menu() {
   done
 }
 
+
+check_tailscale() {
+  echo "🔌 Verific conexiunea Tailscale..."
+
+  if ! tailscale status &>/dev/null; then
+    echo "⚠️  Nu ești conectat la Tailscale."
+
+    if [ -x /usr/local/bin/tailmox.sh ]; then
+      if [[ -f /etc/proxmigrate/tailscale-auth-key ]]; then
+        AUTH_KEY=$(cat /etc/proxmigrate/tailscale-auth-key)
+        tailmox.sh --auth-key "$AUTH_KEY"
+      else
+        tailmox.sh
+      fi
+    else
+      echo "❌ tailmox.sh nu este instalat în /usr/local/bin/"
+      read -p "Apasa Enter pentru a reveni la meniu..."
+      return 1
+    fi
+
+    sleep 5
+    if tailscale status &>/dev/null; then
+      echo "✅ Conectat cu succes la Tailscale!"
+    else
+      echo "❌ Conexiunea Tailscale a eșuat."
+      read -p "Apasa Enter pentru a reveni la meniu..."
+      return 1
+    fi
+  else
+    echo "✅ Conexiune Tailscale activă."
+  fi
+
+  read -p "Apasa Enter pentru a reveni la meniu..."
+}
+
+
 list_vm_lxc() {
   clear
   echo -e "============ ProxMigrate ============"
@@ -81,7 +84,6 @@ list_vm_lxc() {
   echo ""
   read -p "Apasa Enter pentru a reveni la meniu..."
 }
-
 
 
 create_backup() {
