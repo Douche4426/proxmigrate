@@ -4,6 +4,18 @@ set -e
 LOG_FILE="/var/log/proxmigrate-install.log"
 echo "📥 Descarc ProxMigrate..." | tee -a "$LOG_FILE"
 
+# Verificare si fallback pentru curl
+if ! command -v curl &>/dev/null; then
+  echo "📡 'curl' nu este instalat. Incerc instalarea automata..." | tee -a "$LOG_FILE"
+  if apt update && apt install -y curl >> "$LOG_FILE" 2>&1; then
+    echo "✅ 'curl' a fost instalat cu succes." | tee -a "$LOG_FILE"
+  else
+    echo "❌ Eroare la instalarea 'curl'. Instaleaza-l manual si ruleaza din nou scriptul." | tee -a "$LOG_FILE"
+    exit 1
+  fi
+fi
+
+
 if curl -sL https://github.com/... -o proxmigrate.zip; then
   echo "✅ ProxMigrate a fost descarcat fara erori!" | tee -a "$LOG_FILE"
 else
@@ -99,11 +111,21 @@ Persistent=true
 WantedBy=timers.target
 EOF
 
+# Verificare prezenta systemctl
+if ! command -v systemctl &>/dev/null; then
+  echo "⚠️ ATENTIE: 'systemctl' nu este disponibil. Omit activarea automata a timerului." | tee -a "$LOG_FILE"
+  SKIP_SYSTEMD=1
+fi
+
+
 # Activare timer
-systemctl daemon-reload
-echo "🔄 systemd reîncărcat." | tee -a "$LOG_FILE"
-systemctl enable --now proxmigrate-backup.timer || true
-echo "✅ Am creat symlink pentru proxmigrate-backup.timer!" | tee -a "$LOG_FILE"
+if [[ -z "$SKIP_SYSTEMD" ]]; then
+  systemctl daemon-reload
+  systemctl enable --now proxmigrate-backup.timer || true
+  echo "✅ Am creat symlink pentru proxmigrate-backup.timer!" | tee -a "$LOG_FILE"
+else
+  echo "⏭️ Timerul systemd nu a fost activat (lipseste systemctl)." | tee -a "$LOG_FILE"
+fi
 
 echo "✅ Instalare completa!"
 echo ""
