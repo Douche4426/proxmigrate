@@ -1,6 +1,10 @@
+Perfect, Alex! Mai jos ai versiunea **actualizată și profesionistă a `README.md`**, în acord cu toate modificările recente:
+
+---
+
 # ProxMigrate
 
-Un script interactiv pentru migrarea VM-urilor între noduri Proxmox folosind backup (`vzdump`) și restaurare (`qmrestore`). Ideal pentru utilizatori care folosesc Tailscale pentru conectarea nodurilor la distanță.
+Un tool interactiv pentru backup, restaurare și migrare VM/LXC între noduri Proxmox — local sau remote — folosind Tailscale. Include notificări Discord, alias shell, submeniuri de mentenanță și diagnostic complet (`proxdoctor`).
 
 ---
 
@@ -10,56 +14,83 @@ Rulează comanda de mai jos pe nodul Proxmox:
 
 ```bash
 bash <(curl -s https://raw.githubusercontent.com/Douche4426/proxmigrate/main/install.sh)
-````
+```
+
+Aliasul `pm` va fi creat automat pentru rulare rapidă:
+
+```bash
+pm
+```
 
 ---
 
 ## 🛠️ Ce face ProxMigrate?
 
-* ✅ Backup manual sau automat (VM-uri alese sau doar cele pornite)
-* 🔁 Restaurare rapidă a VM-urilor
-* 📡 Transfer între noduri prin Tailscale
-* 🔔 Notificări prin **Discord webhook**
-* 🎛️ Meniu interactiv în terminal
+* ✅ Backup VM sau LXC (manual sau automat doar cele pornite)
+* 🔁 Restaurare rapidă din backupuri locale
+* 📡 Transfer între noduri Proxmox prin Tailscale (VM + LXC)
+* 🔔 Notificări în timp real prin **Discord webhook**
+* 🧰 Submeniu „Mentenanta” (resetare, actualizare, diagnostic)
 * ⏱️ Serviciu `systemd` zilnic pentru backup automat
-* 🧹 Script de dezinstalare completă
+* 🧪 Script `proxdoctor` pentru verificare completă instalare
+* 📦 Alias rapid: `pm` = `proxmigrate`
+
+---
+
+## 🧰 Submeniu Mentenanta
+
+Accesibil din meniul principal (opțiunea 9):
+
+* Resetare completă (dezinstalare + reinstalare)
+* Actualizare scripturi din GitHub
+* Diagnostic complet cu `proxdoctor`
+* Verificare dacă există o versiune mai nouă a `proxdoctor`
 
 ---
 
 ## 📦 Structura
 
-| Script/Fisier                    | Rol                                                                |
-| -------------------------------- | ------------------------------------------------------------------ |
-| `proxmigrate`                    | Meniul interactiv principal                                        |
-| `cron-backup-running-discord.sh` | Backup automat doar pentru VM-urile pornite, cu notificare Discord |
-| `proxmigrate-backup.service`     | Serviciu systemd pentru backup                                     |
-| `proxmigrate-backup.timer`       | Timer zilnic la ora 03:00                                          |
-| `install.sh`                     | Script de instalare                                                |
-| `uninstall-proxmigrate.sh`       | Script de dezinstalare                                             |
+| Script/Fisier                    | Rol                                                          |
+| -------------------------------- | ------------------------------------------------------------ |
+| `proxmigrate`                    | Meniul principal                                             |
+| `maintenance.sh`                 | Submeniu cu opțiuni de reset/update/diagnostic               |
+| `proxversion`                    | Afișează versiunea și changelog-ul                           |
+| `proxdoctor`                     | Diagnostic complet: fișiere, comenzi, servicii, alias        |
+| `cron-backup-running-discord.sh` | Backup automat doar pentru cele pornite + notificare Discord |
+| `install.sh`                     | Instalează tot pachetul ProxMigrate                          |
+| `reset.sh`                       | Dezinstalare + reinstalare curată cu backup opțional         |
+| `update.sh`                      | Actualizează scripturile fără reinstalare completă           |
+| `uninstall-proxmigrate.sh`       | Dezinstalare completă                                        |
 
 ---
 
 ## 📋 Cerințe
-- Proxmox VE 7.x sau 8.x
-- Acces `root` pe ambele noduri
-- Rețea privată funcțională (Tailscale recomandat)
-- Spațiu suficient pentru backupuri în `/var/lib/vz/dump`
+
+* Proxmox VE 7.x sau 8.x
+* Acces root
+* Tailscale activ pe ambele noduri
+* `curl`, `unzip`, `scp`, `qm`, `pct` disponibile
+* Spațiu suficient în `/var/lib/vz/dump`
 
 ---
 
-## 📤 Notificări Discord
+## 🔔 Notificări Discord
 
-Configurează `WEBHOOK_URL` în `cron-backup-running-discord.sh` cu linkul tău personalizat de webhook Discord:
+Configurează webhook-ul în:
 
 ```bash
-WEBHOOK_URL="https://discord.com/api/webhooks/xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+/etc/proxmigrate/discord-webhook.conf
+```
+
+Exemplu:
+
+```bash
+WEBHOOK_URL="https://discord.com/api/webhooks/xxxxxxxxxxxxxxxxxxxx"
 ```
 
 ---
 
 ## 🧹 Dezinstalare
-
-Rulează:
 
 ```bash
 bash <(curl -s https://raw.githubusercontent.com/Douche4426/proxmigrate/main/uninstall-proxmigrate.sh)
@@ -67,15 +98,14 @@ bash <(curl -s https://raw.githubusercontent.com/Douche4426/proxmigrate/main/uni
 
 ---
 
-## 📋 Capturi de ecran
-
-![Meniul ProxMigrate](https://raw.githubusercontent.com/alexs/proxmigrate/main/screenshots/menu.png)
-
----
-
 ## 📄 Licență
+
 MIT
 
 ---
 
-Pentru întrebări sau contribuții, contactează autorul original sau deschide un issue în repo.
+## 💬 Suport
+
+Deschide un issue în GitHub sau contactează creatorul scriptului pentru întrebări/contribuții.
+
+---
