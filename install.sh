@@ -131,6 +131,14 @@ fi
 
 [[ -d /tmp/proxmigrate ]] && rm -rf /tmp/proxmigrate && echo "🧹 Directorul temporar /tmp/proxmigrate a fost curatat." | tee -a "$LOG_FILE"
 
+# === Adaugare alias shell ===
+if ! grep -q "alias pm=" ~/.bashrc; then
+  echo "alias pm='proxmigrate'" >> ~/.bashrc
+  echo "✅ Alias 'pm' adaugat in .bashrc" | tee -a "$LOG_FILE"
+else
+  echo "ℹ️ Alias 'pm' deja exista in .bashrc" | tee -a "$LOG_FILE"
+fi
+
 echo "✅ Instalare completa!"
 echo ""
 echo "Instrucțiuni de utilizare:"
