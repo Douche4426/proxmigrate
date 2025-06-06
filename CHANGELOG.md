@@ -2,6 +2,28 @@
 
 Toate modificările semnificative aduse scriptului ProxMigrate sunt documentate mai jos.
 
+
+---
+
+## [v1.3.0] - 2025-06-06
+
+### Adaugat
+- Script nou `proxdoctor` pentru verificarea completă a instalării:
+  - Verifică existența fișierelor principale, directoare, comenzi și servicii
+  - Include verificarea aliasului `pm` în `.bashrc`
+- Instalare automată a `proxdoctor` în `install.sh` dacă lipsește
+- Alias automat `pm='proxmigrate'` adăugat în `.bashrc` la instalare
+- Integrare `proxdoctor` în `maintenance.sh` (opțiunea 3)
+- Verificare automată dacă există o versiune mai nouă a `proxdoctor` pe GitHub (prin `Last-Modified`)
+- Combinație a diagnosticului + verificării de versiune într-o singură opțiune din `maintenance.sh`
+
+### Îmbunătățit
+- Meniu de mentenanță simplificat: opțiunea 3 unifică `proxdoctor` și update check
+- Separare clară între rolul scripturilor: operațional (`proxmigrate`), mentenanță (`maintenance.sh`), versiune (`proxversion`), diagnostic (`proxdoctor`)
+- Claritate și feedback detaliat în loguri și în terminal
+
+---
+
 ## [v1.2.0] - 2025-06-05
 
 ### Adaugat
@@ -27,7 +49,6 @@ Toate modificările semnificative aduse scriptului ProxMigrate sunt documentate 
 - Corectare poziționare fallback `unzip`
 - Eliminare `read` duplicat din `check_tailscale()`
 - Detectare lipsă `scp` în `transfer_backup()`
-
 
 ---
 
