@@ -1,5 +1,12 @@
 #!/bin/bash
 
+VERSION="necunoscuta"
+
+# Daca exista fisierul version.txt, citeste versiunea de acolo
+if [[ -f /etc/proxmigrate/version.txt ]]; then
+    VERSION=$(cat /etc/proxmigrate/version.txt)
+fi
+
 # === Definire cale + versiune ===
 SCRIPT_DIR="$(dirname "$0")"
 VERSION=$(git -C "$SCRIPT_DIR" describe --tags --abbrev=0 2>/dev/null)
