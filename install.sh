@@ -139,6 +139,17 @@ else
   echo "ℹ️ Alias 'pm' deja exista in .bashrc" | tee -a "$LOG_FILE"
 fi
 
+# === Instalare automata proxdoctor ===
+if [[ ! -f /usr/local/bin/proxdoctor ]]; then
+  echo "📥 Descarc si instalez proxdoctor..." | tee -a "$LOG_FILE"
+  curl -sL https://raw.githubusercontent.com/Douche4426/proxmigrate/main/proxdoctor -o /usr/local/bin/proxdoctor
+  chmod +x /usr/local/bin/proxdoctor
+  echo "✅ proxdoctor a fost instalat cu succes." | tee -a "$LOG_FILE"
+else
+  echo "ℹ️ proxdoctor este deja instalat." | tee -a "$LOG_FILE"
+fi
+
+
 echo "✅ Instalare completa!"
 echo ""
 echo "Instrucțiuni de utilizare:"
