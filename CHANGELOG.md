@@ -2,6 +2,22 @@
 
 Toate modificările semnificative aduse scriptului ProxMigrate sunt documentate mai jos.
 
+## [v1.2.0] - 2025-06-05
+### Adaugat
+- Submeniu nou "Mentenanta" în locul optiunilor 9 (reset) si 10 (update)
+- Script nou `maintenance.sh` cu optiuni resetare si actualizare
+- Fallback profesional pentru dependințe (curl, unzip, systemctl)
+- Script `update.sh` pentru actualizare rapida
+- Script `reset.sh` cu backup optional si reinstalare completa
+
+### Imbunatatit
+- Meniul principal ProxMigrate este acum mai curat si modular
+- Mesaje de status și loguri extinse în `install.sh`
+
+### Fix
+- Corectat fallback unzip (pozitionare incorecta)
+- Eliminat `read` duplicat din `check_tailscale()`
+
 ---
 
 ## [v0.3.0] – 2025-06-04
