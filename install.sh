@@ -4,6 +4,16 @@ set -e
 LOG_FILE="/var/log/proxmigrate-install.log"
 echo "📥 Descarc ProxMigrate..." | tee -a "$LOG_FILE"
 
+if ! command -v unzip &>/dev/null; then
+  echo "📦 'unzip' nu este instalat. Incerc instalarea automata..." | tee -a "$LOG_FILE"
+  if apt update && apt install -y unzip >> "$LOG_FILE" 2>&1; then
+    echo "✅ 'unzip' a fost instalat cu succes." | tee -a "$LOG_FILE"
+  else
+    echo "❌ Eroare la instalarea pachetului 'unzip'. Instaleaza-l manual si ruleaza din nou scriptul." | tee -a "$LOG_FILE"
+    exit 1
+  fi
+fi
+
 if curl -sL https://github.com/... -o proxmigrate.zip; then
   echo "✅ ProxMigrate a fost descarcat fara erori!" | tee -a "$LOG_FILE"
 else
