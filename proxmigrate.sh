@@ -2,10 +2,14 @@
 # ProxMigrate - Meniu interactiv pentru migrare VM prin backup vzdump + qmrestore
 
 BACKUP_DIR="/var/lib/vz/dump"
+mkdir -p "$BACKUP_DIR"
 
 main_menu() {
   while true; do
     clear
+    if command -v proxversion &>/dev/null; then
+      proxversion
+    fi
     echo "=========== ProxMigrate ==========="
     echo "1) Listeaza toate VM/LXC disponibile"
     echo "2) Creeaza backup VM/LXC (vzdump)"
@@ -317,10 +321,15 @@ select_node_ip() {
 
   echo ""
   read -p "Selecteaza numarul nodului: " SELECTED
-  SELECTED_IP="${NODES[$((SELECTED-1))]}"
+  if ! [[ "$SELECTED" =~ ^[0-9]+$ ]] || (( SELECTED < 1 || SELECTED > ${#NODES[@]} )); then
+    echo "❌ Selectie invalida."
+    sleep 2
+    return 1
+  fi
+  NODE_IP="${NODES[$((SELECTED-1))]}"
+
   echo "📡 Nod selectat: $SELECTED_IP"
   echo "$SELECTED_IP"
 }
-
 
 main_menu
