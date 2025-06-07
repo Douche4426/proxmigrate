@@ -25,7 +25,13 @@ unzip -o main.zip >/dev/null
 cd proxmigrate-main
 
 FILES=(proxversion proxmigrate.sh proxdoctor tailmox.sh cron-backup-running-discord.sh)
-REPO_DIR=$(find "$TMP_DIR" -maxdepth 1 -type d -name "proxmigrate-*" | head -n1)
+REPO_DIR=$(find "$TMP_DIR" -mindepth 1 -maxdepth 1 -type d -iname "proxmigrate-*" | head -n1)
+
+if [[ ! -d "$REPO_DIR" ]]; then
+  echo "❌ Eroare: folderul extras cu scripturile nu a fost gasit!" | tee -a "$LOG"
+  exit 1
+fi
+
 
 for f in "${FILES[@]}"; do
   REMOTE_FILE="$REPO_DIR/$f"
