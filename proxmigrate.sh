@@ -34,13 +34,7 @@ main_menu() {
          read -p "🔁 Apasa Enter pentru a reveni la meniu...";;
       7) set_tailscale_auth_key;;
       8) configure_tailscale_nodes;;
-      9)
-        if [[ -f maintenance.sh ]]; then
-          bash maintenance.sh
-        else
-          curl -sL https://raw.githubusercontent.com/Douche4426/proxmigrate/main/maintenance.sh | bash
-        fi
-        read -p "Apasa Enter pentru a reveni la meniu...";;
+      9) maintenance_submenu ;;
       10) exit;;
       *) echo "Optiune invalida."; read -p "Apasa Enter pentru a continua...";;
     esac
@@ -331,5 +325,77 @@ select_node_ip() {
   echo "📡 Nod selectat: $SELECTED_IP"
   echo "$SELECTED_IP"
 }
+
+reset_proxmigrate() {
+  echo "🔁 Execut reset complet (uninstall + reinstall)..."
+  curl -sL https://raw.githubusercontent.com/Douche4426/proxmigrate/main/reset.sh | bash
+  read -p "Apasa Enter pentru a reveni la meniu..."
+}
+
+update_proxmigrate() {
+  echo "⬆️ Execut update ProxMigrate..."
+  curl -sL https://raw.githubusercontent.com/Douche4426/proxmigrate/main/update.sh | bash
+  read -p "Apasa Enter pentru a reveni la meniu..."
+}
+
+verify_proxmigrate() {
+  echo "🔍 Verificare ProxMigrate..."
+
+  if command -v proxdoctor &>/dev/null; then
+    proxdoctor
+  else
+    echo "❌ proxdoctor nu este instalat."
+    echo "💡 Instaleaza-l cu:"
+    echo "curl -sL https://raw.githubusercontent.com/Douche4426/proxmigrate/main/proxdoctor -o /usr/local/bin/proxdoctor && chmod +x /usr/local/bin/proxdoctor"
+  fi
+
+  echo ""
+  echo "🌐 Verific daca exista versiune noua..."
+
+  REMOTE_URL="https://raw.githubusercontent.com/Douche4426/proxmigrate/main/proxdoctor"
+  LOCAL_FILE="/usr/local/bin/proxdoctor"
+
+  if command -v curl &>/dev/null; then
+    REMOTE_DATE=$(curl -sI "$REMOTE_URL" | grep -i '^last-modified:' | cut -d' ' -f2-)
+    LOCAL_DATE=$(stat -c %y "$LOCAL_FILE" 2>/dev/null | cut -d'.' -f1)
+
+    if [[ -n "$REMOTE_DATE" && -n "$LOCAL_DATE" ]]; then
+      if [[ "$(date -d "$REMOTE_DATE" +%s)" -gt "$(date -d "$LOCAL_DATE" +%s)" ]]; then
+        echo "⬆️ Exista o versiune mai noua a proxdoctor!"
+      else
+        echo "✅ proxdoctor este la zi."
+      fi
+    else
+      echo "⚠️ Nu s-au putut compara versiunile."
+    fi
+  else
+    echo "❌ comanda 'curl' lipseste."
+  fi
+
+  read -p "Apasa Enter pentru a reveni la meniu..."
+}
+
+maintenance_submenu() {
+  while true; do
+    clear
+    echo "📕 Submeniul Mentenanta ProxMigrate"
+    echo "======================================"
+    echo "1) Resetare completă (uninstall + reinstall)"
+    echo "2) Actualizare ProxMigrate"
+    echo "3) Verificare instalare (proxdoctor + versiune noua)"
+    echo "4) Iesire"
+    echo "======================================"
+    read -p "Selecteaza optiunea: " subopt
+
+    case $subopt in
+      1) reset_proxmigrate ;;
+      2) update_proxmigrate ;;
+      3) verify_proxmigrate ;;
+      4) echo "📤 Iesire din submeniul mentenanta."; break ;;
+      *) echo "❌ Optiune invalida!"; sleep 1 ;;
+    esac
+  done
+}
+
 
 main_menu
