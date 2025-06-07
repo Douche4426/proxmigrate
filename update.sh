@@ -24,45 +24,32 @@ fi
 unzip -o main.zip >/dev/null
 cd proxmigrate-main
 
-# === LISTA FISIERE DE ACTUALIZAT ===
-FILES=(
-  proxmigrate
-  proxversion
-  proxdoctor
-  tailmox.sh
-  cron-backup-running-discord.sh
-)
+FILES=(proxversion proxmigrate.sh proxdoctor tailmox.sh cron-backup-running-discord.sh)
+REPO_DIR=$(find "$TMP_DIR" -maxdepth 1 -type d -name "proxmigrate-*" | head -n1)
 
-# === FUNCTIE COMPARE & COPY ===
-compare_and_update() {
-  SRC="$1"
-  DEST="/usr/local/bin/$1"
+for f in "${FILES[@]}"; do
+  REMOTE_FILE="$REPO_DIR/$f"
 
-  if [[ ! -f "$SRC" ]]; then
-    echo "⚠️ Fisierul $SRC lipseste in repo!" | tee -a "$LOG"
-    return
-  fi
+  if [[ -f "$REMOTE_FILE" ]]; then
+    # Seteaza calea locală corecta
+    case "$f" in
+      proxversion) LOCAL_FILE="/usr/local/bin/proxversion" ;;
+      proxmigrate.sh) LOCAL_FILE="/usr/local/bin/proxmigrate" ;;
+      cron-backup-running-discord.sh) LOCAL_FILE="/usr/local/bin/cron-backup-running-discord.sh" ;;
+      *) LOCAL_FILE="/usr/local/bin/$f" ;;
+    esac
 
-  if [[ ! -f "$DEST" ]]; then
-    cp "$SRC" "$DEST"
-    chmod +x "$DEST"
-    echo "🆕 $SRC a fost instalat (nu exista local)." | tee -a "$LOG"
-  else
-    HASH_SRC=$(sha256sum "$SRC" | awk '{print $1}')
-    HASH_DEST=$(sha256sum "$DEST" | awk '{print $1}')
-    if [[ "$HASH_SRC" != "$HASH_DEST" ]]; then
-      cp "$SRC" "$DEST"
-      chmod +x "$DEST"
-      echo "✅ $SRC a fost actualizat (diferente detectate)." | tee -a "$LOG"
+    # Compara si actualizeaza doar daca difera
+    if cmp -s "$REMOTE_FILE" "$LOCAL_FILE"; then
+      echo "⏩ $f este deja la zi (fara modificari)." | tee -a "$LOG"
     else
-      echo "⏭ $SRC este deja la zi (fara modificari)." | tee -a "$LOG"
+      cp "$REMOTE_FILE" "$LOCAL_FILE"
+      chmod +x "$LOCAL_FILE"
+      echo "✅ $f a fost actualizat in $LOCAL_FILE." | tee -a "$LOG"
     fi
+  else
+    echo "⚠️ Fisierul $f lipseste in arhiva!" | tee -a "$LOG"
   fi
-}
-
-# === APLICARE ===
-for file in "${FILES[@]}"; do
-  compare_and_update "$file"
 done
 
 echo "" | tee -a "$LOG"
