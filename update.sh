@@ -67,3 +67,11 @@ done
 
 echo "" | tee -a "$LOG"
 echo "🎉 Actualizare finalizata. Ruleaza 'proxmigrate' pentru a verifica." | tee -a "$LOG"
+
+if command -v proxversion &>/dev/null; then
+  echo "" | tee -a "$LOG"
+  echo "📌 Versiunea curenta instalata:" | tee -a "$LOG"
+  proxversion | tee -a "$LOG"
+else
+  echo "⚠️ proxversion nu este instalat sau nu a fost actualizat corect." | tee -a "$LOG"
+fi
