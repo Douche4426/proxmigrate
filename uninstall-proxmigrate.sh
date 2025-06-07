@@ -19,11 +19,11 @@ rm -f /usr/local/bin/tailmox.sh && echo "✔ tailmox.sh sters" >> "$LOG"
 rm -f /usr/local/bin/maintenance.sh && echo "✔ maintenance.sh sters" >> "$LOG"
 rm -f /usr/local/bin/update.sh && echo "✔ update.sh sters" >> "$LOG"
 rm -f /usr/local/bin/reset.sh && echo "✔ reset.sh sters" >> "$LOG"
-rm -f /usr/local/bin/dependencies.sh && echo "✔ dependencies.sh sters" >> "$LOG"
 
 # Sterge foldere si fisiere auxiliare
 rm -rf /usr/local/share/proxmigrate && echo "✔ /usr/local/share/proxmigrate sters" >> "$LOG"
 rm -rf /etc/proxmigrate && echo "✔ /etc/proxmigrate sters" >> "$LOG"
+rm -f /etc/proxmigrate/version.txt && echo "✔ version.txt sters" >> "$LOG"
 
 # Sterge logul principal
 read -p "Doresti sa stergi si logul principal (/var/log/proxmigrate.log)? [y/N]: " confirm1
