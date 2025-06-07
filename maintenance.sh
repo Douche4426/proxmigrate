@@ -9,9 +9,9 @@ while true; do
   echo "4) Iesire"
   echo ""
 
-  read -p "Alege o optiune: " opt
+  read -p "Alege o optiune: " subopt
 
-  case $opt in
+  case $subopt in
     1)
       curl -sL https://raw.githubusercontent.com/Douche4426/proxmigrate/main/reset.sh | bash
       ;;
