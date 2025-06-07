@@ -24,7 +24,7 @@ fi
 unzip -o main.zip >/dev/null
 cd proxmigrate-main
 
-FILES=(proxversion proxmigrate.sh proxdoctor tailmox.sh cron-backup-running-discord.sh)
+FILES=(proxversion proxmigrate.sh proxdoctor.sh tailmox.sh cron-backup-running-discord.sh)
 REPO_DIR=$(find "$TMP_DIR" -mindepth 1 -maxdepth 1 -type d -iname "proxmigrate-*" | head -n1)
 
 if [[ ! -d "$REPO_DIR" ]]; then
