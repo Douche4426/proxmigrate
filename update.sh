@@ -1,50 +1,69 @@
 #!/bin/bash
 set -e
 
-# === DEFINIRE LOG ===
-LOG_FILE="/var/log/proxmigrate-update.log"
-echo "🔄 Pornit update ProxMigrate – $(date)" > "$LOG_FILE"
-
-# === PREGATIRE TEMP ===
+# === CONFIGURARE ===
 TMP_DIR="/tmp/proxmigrate-update"
-rm -rf "$TMP_DIR"
+REPO_ZIP="https://github.com/Douche4426/proxmigrate/archive/refs/heads/main.zip"
+LOG="/var/log/proxmigrate-update.log"
+DATE=$(date "+%Y-%m-%d %H:%M:%S")
+
+echo "🔄 Actualizare ProxMigrate ($DATE)" > "$LOG"
 mkdir -p "$TMP_DIR"
 cd "$TMP_DIR"
+rm -rf "$TMP_DIR"/*
 
-echo "📥 Descarc ultima versiune din GitHub..." | tee -a "$LOG_FILE"
-if curl -sL https://github.com/Douche4426/proxmigrate/archive/refs/heads/main.zip -o update.zip; then
-  echo "✅ Arhiva descarcata cu succes." | tee -a "$LOG_FILE"
+# === DESCARCA ===
+echo "📥 Descarc ultima versiune din GitHub..." | tee -a "$LOG"
+if curl -sL "$REPO_ZIP" -o main.zip; then
+  echo "✅ Arhiva descarcata cu succes." | tee -a "$LOG"
 else
-  echo "❌ Eroare la descarcarea arhivei." | tee -a "$LOG_FILE"
+  echo "❌ Eroare la descarcare!" | tee -a "$LOG"
   exit 1
 fi
 
-if unzip -o update.zip >/dev/null; then
-  echo "✅ Arhiva extrasa cu succes." | tee -a "$LOG_FILE"
-else
-  echo "❌ Eroare la extragerea arhivei." | tee -a "$LOG_FILE"
-  exit 1
-fi
-
+unzip -o main.zip >/dev/null
 cd proxmigrate-main
 
-# === ACTUALIZEAZA FISIERE ===
-copy_script() {
+# === LISTA FISIERE DE ACTUALIZAT ===
+FILES=(
+  proxmigrate
+  proxversion
+  proxdoctor
+  tailmox.sh
+  cron-backup-running-discord.sh
+)
+
+# === FUNCTIE COMPARE & COPY ===
+compare_and_update() {
   SRC="$1"
   DEST="/usr/local/bin/$1"
-  if [[ -f "$SRC" ]]; then
-    cp "$SRC" "$DEST" && chmod +x "$DEST"
-    echo "✅ $SRC actualizat in $DEST." | tee -a "$LOG_FILE"
+
+  if [[ ! -f "$SRC" ]]; then
+    echo "⚠️ Fisierul $SRC lipseste in repo!" | tee -a "$LOG"
+    return
+  fi
+
+  if [[ ! -f "$DEST" ]]; then
+    cp "$SRC" "$DEST"
+    chmod +x "$DEST"
+    echo "🆕 $SRC a fost instalat (nu exista local)." | tee -a "$LOG"
   else
-    echo "⚠️ Fisierul $SRC lipseste in arhiva GitHub." | tee -a "$LOG_FILE"
+    HASH_SRC=$(sha256sum "$SRC" | awk '{print $1}')
+    HASH_DEST=$(sha256sum "$DEST" | awk '{print $1}')
+    if [[ "$HASH_SRC" != "$HASH_DEST" ]]; then
+      cp "$SRC" "$DEST"
+      chmod +x "$DEST"
+      echo "✅ $SRC a fost actualizat (diferente detectate)." | tee -a "$LOG"
+    else
+      echo "⏭ $SRC este deja la zi (fara modificari)." | tee -a "$LOG"
+    fi
   fi
 }
 
-copy_script proxmigrate
-copy_script proxversion
-copy_script cron-backup-running-discord.sh
-copy_script tailmox.sh
-copy_script proxdoctor
+# === APLICARE ===
+for file in "${FILES[@]}"; do
+  compare_and_update "$file"
+done
 
-# === FINAL ===
-echo "🎉 Update complet. Ruleaza 'proxmigrate' sau 'proxversion' pentru confirmare." | tee -a "$LOG_FILE"
+echo "" | tee -a "$LOG"
+echo "🎉 Actualizare finalizata. Ruleaza 'proxmigrate' pentru a verifica." | tee -a "$LOG"
