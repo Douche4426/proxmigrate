@@ -2,7 +2,42 @@
 set -e
 
 LOG_FILE="/var/log/proxmigrate-install.log"
-source "$(dirname "$0")/dependencies.sh"
+
+# === Verificare si instalare dependinte esentiale ===
+LOG_FILE="${LOG_FILE:-/var/log/proxmigrate-install.log}"
+echo "🔍 Verificare dependinte - $(date)" >> "$LOG_FILE"
+
+check_dep() {
+  local cmd="$1"
+  local pkg="$2"
+  local desc="$3"
+
+  if ! command -v "$cmd" &>/dev/null; then
+    echo "📦 '$cmd' ($desc) lipseste. Incerc instalarea automata..." | tee -a "$LOG_FILE"
+    if apt update && apt install -y "$pkg" >> "$LOG_FILE" 2>&1; then
+      echo "✅ '$cmd' a fost instalat cu succes." | tee -a "$LOG_FILE"
+    else
+      echo "❌ Eroare la instalarea '$cmd'. Instaleaza-l manual si ruleaza din nou scriptul." | tee -a "$LOG_FILE"
+      exit 1
+    fi
+  else
+    echo "✅ '$cmd' este deja prezent." >> "$LOG_FILE"
+  fi
+}
+
+# === Verificari esentiale ===
+check_dep curl curl "utilitar pentru descarcare HTTP"
+check_dep unzip unzip "utilitar pentru extragere arhive ZIP"
+check_dep expect expect "automatizare sesiuni CLI (ex: tailmox)"
+
+# === Verificare pentru systemctl ===
+if ! command -v systemctl &>/dev/null; then
+  echo "⚠️ 'systemctl' lipseste. Timerul systemd va fi sarit." | tee -a "$LOG_FILE"
+  SKIP_SYSTEMD=1
+else
+  echo "✅ 'systemctl' este disponibil." >> "$LOG_FILE"
+fi
+
 
 echo "📥 Descarc ProxMigrate..." | tee -a "$LOG_FILE"
 
@@ -148,6 +183,21 @@ if [[ ! -f /usr/local/bin/proxdoctor ]]; then
 else
   echo "ℹ️ proxdoctor este deja instalat." | tee -a "$LOG_FILE"
 fi
+
+# === Setare versiune ProxMigrate ===
+VERSION_FILE="/etc/proxmigrate/version.txt"
+
+mkdir -p /etc/proxmigrate
+
+# Extrage versiunea din Git (dacă există tag local), altfel fallback
+if command -v git &>/dev/null && git rev-parse --is-inside-work-tree &>/dev/null; then
+    VERSION=$(git describe --tags --always 2>/dev/null)
+else
+    VERSION="v1.3.0"  # ← actualizeaza manual aici dacă rulezi din .zip
+fi
+
+echo "$VERSION" > "$VERSION_FILE"
+echo "🧩 Versiunea ProxMigrate setata: $VERSION" | tee -a "$LOG_FILE"
 
 
 echo "✅ Instalare completa!"
