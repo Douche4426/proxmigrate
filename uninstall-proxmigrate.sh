@@ -58,4 +58,23 @@ if [[ -f /usr/local/bin/proxdoctor ]]; then
   echo "🗑️ proxdoctor a fost sters." | tee -a "$LOG"
 fi
 
+# === Intreaba daca stergem fisierele locale din folderul curent ===
+echo
+read -p "Doresti sa stergi si fisierele locale de instalare (main.zip, proxmigrate.zip, proxmigrate-main)? [y/N]: " confirm_local
+
+if [[ $confirm_local =~ ^[Yy]$ ]]; then
+  for file in main.zip proxmigrate.zip; do
+    if [[ -f $file ]]; then
+      rm -f "$file"
+      echo "🗑️ Fisierul '$file' a fost sters." | tee -a "$LOG"
+    fi
+  done
+
+  if [[ -d proxmigrate-main ]]; then
+    rm -rf proxmigrate-main
+    echo "🧹 Folderul 'proxmigrate-main' a fost sters." | tee -a "$LOG"
+  fi
+fi
+
+
 echo "✅ ProxMigrate a fost dezinstalat complet. Log salvat in: $LOG"
