@@ -1,37 +1,41 @@
 #!/bin/bash
 
 while true; do
-  echo ""
-  echo "🧰 Submeniu Mentenanta ProxMigrate"
+  clear
+  echo "🔧 Submeniu Mentenanta ProxMigrate"
+  echo "====================================="
   echo "1) Resetare completă (uninstall + reinstall)"
   echo "2) Actualizare ProxMigrate"
-  echo "3) Verificare instalare (proxdoctor + versiune noua)"
+  echo "3) Verificare instalare (proxdoctor + versiune nouă)"
   echo "4) Iesire"
+  echo "====================================="
   echo ""
 
   read -p "Alege o optiune: " subopt
 
-  case $subopt in
+  case "$subopt" in
     1)
+      echo "🔁 Rulez reset.sh..."
       curl -sL https://raw.githubusercontent.com/Douche4426/proxmigrate/main/reset.sh | bash
+      read -p "Apasa Enter pentru a reveni la meniu..."
       ;;
     2)
+      echo "⬆️  Actualizez ProxMigrate..."
       curl -sL https://raw.githubusercontent.com/Douche4426/proxmigrate/main/update.sh | bash
+      read -p "Apasa Enter pentru a reveni la meniu..."
       ;;
     3)
-      echo ""
-      echo "🔎 Verificare generala ProxMigrate + proxdoctor"
-
+      echo "🔍 Verific instalarea..."
       if command -v proxdoctor &>/dev/null; then
         proxdoctor
       else
         echo "❌ proxdoctor nu este instalat."
-        echo "💡 Ruleaza install.sh sau descarca manual:"
+        echo "💡 Instaleaza-l cu:"
         echo "curl -sL https://raw.githubusercontent.com/Douche4426/proxmigrate/main/proxdoctor -o /usr/local/bin/proxdoctor && chmod +x /usr/local/bin/proxdoctor"
       fi
 
       echo ""
-      echo "🌐 Verific daca exista o versiune mai noua a proxdoctor..."
+      echo "🌐 Verific versiune online..."
       REMOTE_URL="https://raw.githubusercontent.com/Douche4426/proxmigrate/main/proxdoctor"
       LOCAL_FILE="/usr/local/bin/proxdoctor"
 
@@ -41,17 +45,15 @@ while true; do
 
         if [[ -n "$REMOTE_DATE" && -n "$LOCAL_DATE" ]]; then
           if [[ "$(date -d "$REMOTE_DATE" +%s)" -gt "$(date -d "$LOCAL_DATE" +%s)" ]]; then
-            echo "⬆️  Exista o versiune noua a proxdoctor!"
-            echo "💡 Actualizeaza cu:"
-            echo "curl -sL $REMOTE_URL -o $LOCAL_FILE && chmod +x $LOCAL_FILE"
+            echo "⬆️ Exista o versiune mai noua a proxdoctor!"
           else
             echo "✅ proxdoctor este la zi."
           fi
         else
-          echo "⚠️ Nu am putut compara datele de versiune."
+          echo "⚠️ Nu s-a putut compara versiunile."
         fi
       else
-        echo "❌ 'curl' lipseste. Nu pot verifica."
+        echo "❌ 'curl' nu este disponibil."
       fi
 
       read -p "Apasa Enter pentru a reveni la meniu..."
