@@ -15,12 +15,9 @@ main_menu() {
     echo "2) Creeaza backup VM/LXC (vzdump)"
     echo "3) Transfera backup catre alt nod"
     echo "4) Restaureaza VM din backup"
-    echo "5) Sterge backupuri vechi"
-    echo "6) Verifica conexiunea Tailscale"
-    echo "7) Seteaza Tailscale Auth-Key"
-    echo "8) Configureaza noduri Tailscale"
-    echo "9) Mentenanta ProxMigrate"
-    echo "10) Iesi"
+    echo "5) Mentenanta ProxMigrate"
+    echo "6) Setari Tailscale"
+    echo "0) Iesire"
     echo "===================================="
     read -p "Selecteaza optiunea: " opt
 
@@ -29,13 +26,9 @@ main_menu() {
       2) create_backup;;
       3) transfer_backup;;
       4) restore_vm;;
-      5) delete_old_backups;;
-      6) check_tailscale
-         read -p "🔁 Apasa Enter pentru a reveni la meniu...";;
-      7) set_tailscale_auth_key;;
-      8) configure_tailscale_nodes;;
-      9) maintenance_submenu ;;
-      10) exit;;
+      5) maintenance_submenu ;;
+      6) settings_submenu ;;
+      0) exit;;
       *) echo "Optiune invalida."; read -p "Apasa Enter pentru a continua...";;
     esac
   done
@@ -379,11 +372,11 @@ maintenance_submenu() {
   while true; do
     clear
     echo "📕 Submeniul Mentenanta ProxMigrate"
-    echo "======================================"
     echo "1) Resetare completă (uninstall + reinstall)"
     echo "2) Actualizare ProxMigrate"
     echo "3) Verificare instalare (proxdoctor + versiune noua)"
-    echo "4) Iesire"
+    echo "4) Sterge backupuri vechi"
+    echo "5) Iesire"
     echo "======================================"
     read -p "Selecteaza optiunea: " subopt
 
@@ -391,11 +384,34 @@ maintenance_submenu() {
       1) reset_proxmigrate ;;
       2) update_proxmigrate ;;
       3) verify_proxmigrate ;;
-      4) echo "📤 Iesire din submeniul mentenanta."; break ;;
+      4) delete_old_backups ;;
+      5) echo "📤 Iesire din submeniul mentenanta."; break ;;
       *) echo "❌ Optiune invalida!"; sleep 1 ;;
     esac
   done
 }
+
+settings_submenu() {
+  while true; do
+    clear
+    echo "🛠 Submeniul Setari Tailscale"
+    echo "1) Verifica conexiunea Tailscale"
+    echo "2) Seteaza Auth-Key Tailscale"
+    echo "3) Configureaza noduri Tailscale"
+    echo "4) Iesire"
+    echo "=============================="
+    read -p "Selecteaza optiunea: " setopt
+
+    case $setopt in
+      1) check_tailscale ;;
+      2) set_tailscale_auth_key ;;
+      3) configure_tailscale_nodes ;;
+      4) echo "📤 Iesire din setari."; break ;;
+      *) echo "❌ Optiune invalida!"; sleep 1 ;;
+    esac
+  done
+}
+
 
 
 main_menu
